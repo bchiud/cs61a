@@ -15,28 +15,10 @@ increment = lambda x: x + 1
 ######################
 # Required Questions #
 ######################
-
-# Q1
-def make_adder(n):
-    """Return a function that takes an argument K and returns N + K.
-
-    >>> add_three = make_adder(3)
-    >>> add_three(1) + add_three(2)
-    9
-    >>> make_adder(1)(2)
-    3
-    """
-    "*** YOUR CODE HERE ***"
-    def adder(k):
-        return k + n
-
-    return adder
-
-# Q2
-def product(n, term):
+def product(n, f):
     """Return the product of the first n terms in a sequence.
-    n    -- a positive integer
-    term -- a function that takes one argument
+    n -- a positive integer
+    f -- a function that takes one argument to produce the term
 
     >>> product(3, identity)  # 1 * 2 * 3
     6
@@ -50,34 +32,16 @@ def product(n, term):
     24
     >>> product(3, triple)    # 1*3 * 2*3 * 3*3
     162
-    >>> from construct_check import check
-    >>> check(HW_SOURCE_FILE, 'product', ['Recursion'])
-    True
     """
     "*** YOUR CODE HERE ***"
-    p = 1
+    total = 1
     for i in range(n):
-        p = p * term(i+1)
-    return p
+        total = total * f(i+1)
+    return total
 
-def factorial(n):
-    """Return n factorial for n >= 0 by calling product.
-
-    >>> factorial(4)  # 4 * 3 * 2 * 1
-    24
-    >>> factorial(6)  # 6 * 5 * 4 * 3 * 2 * 1
-    720
-    >>> from construct_check import check
-    >>> check(HW_SOURCE_FILE, 'factorial', ['Recursion', 'For', 'While'])
-    True
-    """
-    "*** YOUR CODE HERE ***"
-    return product(n, identity)
-
-# Q3
-def accumulate(combiner, base, n, term):
+def accumulate(combiner, base, n, f):
     """Return the result of combining the first n terms in a sequence and base.
-    The terms to be combined are term(1), term(2), ..., term(n).  combiner is a
+    The terms to be combined are f(1), f(2), ..., f(n).  combiner is a
     two-argument commutative, associative function.
 
     >>> accumulate(add, 0, 5, identity)  # 0 + 1 + 2 + 3 + 4 + 5
@@ -90,15 +54,21 @@ def accumulate(combiner, base, n, term):
     25
     >>> accumulate(mul, 2, 3, square)    # 2 * 1^2 * 2^2 * 3^2
     72
+    >>> accumulate(lambda x, y: x + y + 1, 2, 3, square)
+    19
+    >>> accumulate(lambda x, y: 2 * (x + y), 2, 3, square)
+    58
+    >>> accumulate(lambda x, y: (x + y) % 17, 19, 20, square)
+    16
     """
     "*** YOUR CODE HERE ***"
-    ans = base
+    total = base
     for i in range(n):
-        ans = combiner(ans, term(i+1))
-    return ans
+        total = combiner(total, f(i+1))
+    return total
 
-def summation_using_accumulate(n, term):
-    """Returns the sum of term(1) + ... + term(n). The implementation
+def summation_using_accumulate(n, f):
+    """Returns the sum of f(1) + ... + f(n). The implementation
     uses accumulate.
 
     >>> summation_using_accumulate(5, square)
@@ -106,14 +76,15 @@ def summation_using_accumulate(n, term):
     >>> summation_using_accumulate(5, triple)
     45
     >>> from construct_check import check
+    >>> # ban iteration and recursion
     >>> check(HW_SOURCE_FILE, 'summation_using_accumulate',
     ...       ['Recursion', 'For', 'While'])
     True
     """
     "*** YOUR CODE HERE ***"
-    return accumulate(add, 0, n, term)
+    return accumulate(add, 0, n, f)
 
-def product_using_accumulate(n, term):
+def product_using_accumulate(n, f):
     """An implementation of product using accumulate.
 
     >>> product_using_accumulate(4, square)
@@ -121,27 +92,22 @@ def product_using_accumulate(n, term):
     >>> product_using_accumulate(6, triple)
     524880
     >>> from construct_check import check
+    >>> # ban iteration and recursion
     >>> check(HW_SOURCE_FILE, 'product_using_accumulate',
     ...       ['Recursion', 'For', 'While'])
     True
     """
     "*** YOUR CODE HERE ***"
-    return accumulate(mul, 1, n, term)
+    return accumulate(mul, 1, n, f)
 
+def compose1(h, g):
+    """Return a function f, such that f(x) = h(g(x))."""
+    def f(x):
+        return h(g(x))
+    return f
 
-###################
-# Extra Questions #
-###################
-
-# Q4 (Optional)
-def compose1(f, g):
-    """Return a function h, such that h(x) = f(g(x))."""
-    def h(x):
-        return f(g(x))
-    return h
-
-def make_repeater(f, n):
-    """Return the function that computes the nth application of f.
+def make_repeater(h, n):
+    """Return the function that computes the nth application of h.
 
     >>> add_three = make_repeater(increment, 3)
     >>> add_three(5)
@@ -152,16 +118,36 @@ def make_repeater(f, n):
     625
     >>> make_repeater(square, 4)(5) # square(square(square(square(5))))
     152587890625
-    >>> make_repeater(square, 0)(5)
+    >>> make_repeater(square, 0)(5) # Yes, it makes sense to apply the function zero times! 
     5
     """
     "*** YOUR CODE HERE ***"
-    g = identity
-    for i in range(n):
-        g = compose1(f, g)
-    return(g)
+    # g = identity
+    # while n > 0:
+    #     g = compose1(h, g)
+    #     n = n - 1
+    # return g
 
-# Q5
+    # total = identity
+    # while n > 0:
+    #     total, n = compose1(h, total), n - 1
+    # return total
+
+    # def f(m):
+    #     total = m
+    #     for i in range(n):
+    #         total = h(total)
+    #     return total
+    # return f
+
+    if n == 0:
+        return lambda x: x
+    return lambda x: h(make_repeater(h, n - 1)(x))
+
+##########################
+# Just for fun Questions #
+##########################
+
 def zero(f):
     return lambda x: x
 
@@ -171,10 +157,12 @@ def successor(n):
 def one(f):
     """Church numeral 1: same as successor(zero)"""
     "*** YOUR CODE HERE ***"
+    return lambda x: f(x)
 
 def two(f):
     """Church numeral 2: same as successor(successor(zero))"""
     "*** YOUR CODE HERE ***"
+    return lambda x: f(f(x))
 
 three = successor(two)
 

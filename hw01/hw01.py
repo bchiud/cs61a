@@ -1,6 +1,5 @@
 """ Homework 1: Control """
 
-# Q1
 from operator import add, sub
 
 def a_plus_abs_b(a, b):
@@ -10,32 +9,39 @@ def a_plus_abs_b(a, b):
     5
     >>> a_plus_abs_b(2, -3)
     5
+    >>> # a check that you didn't change the return statement!
+    >>> import inspect, re
+    >>> re.findall(r'^\s*(return .*)', inspect.getsource(a_plus_abs_b), re.M)
+    ['return h(a, b)']
     """
-    if b < 0:
-        f = sub
+    if b >= 0:
+        h = add
     else:
-        f = add
-    return f(a, b)
+        h = sub
+    return h(a, b)
 
-# Q2
-def two_of_three(a, b, c):
-    """Return x*x + y*y, where x and y are the two largest members of the
-    positive numbers a, b, and c.
+def two_of_three(x, y, z):
+    """Return a*a + b*b, where a and b are the two smallest members of the
+    positive numbers x, y, and z.
 
     >>> two_of_three(1, 2, 3)
-    13
+    5
     >>> two_of_three(5, 3, 1)
-    34
+    10
     >>> two_of_three(10, 2, 8)
-    164
+    68
     >>> two_of_three(5, 5, 5)
     50
+    >>> # check that your code consists of nothing but an expression (this docstring)
+    >>> # a return statement
+    >>> import inspect, ast
+    >>> [type(x).__name__ for x in ast.parse(inspect.getsource(two_of_three)).body[0].body]
+    ['Expr', 'Return']
     """
-    return max(a,b,c) * max(a,b,c) + min(max(a,b), max(a,c), max(b,c)) * min(max(a,b), max(a,c), max(b,c))
+    return x**2 + y**2 + z**2 - max(x,y,z)**2
 
-# Q3
-def largest_factor(n):
-    """Return the largest factor of n that is smaller than n.
+def largest_factor(x):
+    """Return the largest factor of x that is smaller than x.
 
     >>> largest_factor(15) # factors are 1, 3, 5
     5
@@ -44,14 +50,12 @@ def largest_factor(n):
     >>> largest_factor(13) # factor is 1 since 13 is prime
     1
     """
-    "*** YOUR CODE HERE ***"
-    factor = n-1
-    while factor > 0:
-        if n % factor == 0:
-            return factor
-        factor -= 1
+    for i in reversed(range(1, x-1)):
+        if x % i == 0:
+            return i
 
-# Q4
+    "*** YOUR CODE HERE ***"
+
 def if_function(condition, true_result, false_result):
     """Return true_result if condition is a true value, and
     false_result otherwise.
@@ -74,7 +78,7 @@ def if_function(condition, true_result, false_result):
 def with_if_statement():
     """
     >>> result = with_if_statement()
-    2
+    6
     >>> print(result)
     None
     """
@@ -86,25 +90,24 @@ def with_if_statement():
 def with_if_function():
     """
     >>> result = with_if_function()
-    1
-    2
+    5
+    6
     >>> print(result)
     None
     """
     return if_function(c(), t(), f())
 
 def c():
-    "*** YOUR CODE HERE ***"
+    return False
 
 def t():
-    "*** YOUR CODE HERE ***"
+    print(5)
 
 def f():
-    "*** YOUR CODE HERE ***"
+    print(6)
 
-# Q5
-def hailstone(n):
-    """Print the hailstone sequence starting at n and return its
+def hailstone(x):
+    """Print the hailstone sequence starting at x and return its
     length.
 
     >>> a = hailstone(10)
@@ -118,9 +121,13 @@ def hailstone(n):
     >>> a
     7
     """
-    "*** YOUR CODE HERE ***"
-
-# Q6
-quine = """
-"*** YOUR CODE HERE ***"
-"""
+    steps = 1
+    print(x)
+    while x != 1:
+        if x % 2 == 0:
+            x //= 2
+        else:
+            x = x * 3 + 1
+        print(x)
+        steps += 1
+    return steps

@@ -1,8 +1,8 @@
-def twenty_eighteen():
-    """Come up with the most creative expression that evaluates to 2018,
+def twenty_twenty():
+    """Come up with the most creative expression that evaluates to 2020,
     using only numbers and the +, *, and - operators.
 
-    >>> twenty_eighteen()
-    2018
+    >>> twenty_twenty()
+    2020
     """
-    return ______
+    return 2020
