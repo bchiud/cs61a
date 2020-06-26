@@ -18,6 +18,21 @@ def remove_all(link , value):
     <0 1>
     """
     "*** YOUR CODE HERE ***"
+    while link.rest != Link.empty:
+        while link.second == value:
+            link.rest = link.rest.rest
+            if link.rest == Link.empty:
+                return None
+            print(link)
+        link = link.rest
+
+l1 = Link(0, Link(2, Link(2, Link(3, Link(1, Link(2, Link(3)))))))
+print(l1)
+remove_all(l1, 2)
+print(l1)
+remove_all(l1, 3)
+print(l1)
+
 
 # Q7
 def deep_map_mut(fn, link):
@@ -33,6 +48,17 @@ def deep_map_mut(fn, link):
     <9 <16> 25 36>
     """
     "*** YOUR CODE HERE ***"
+    while link:
+        if isinstance(link.first, Link):
+            deep_map_mut(fn, link.first)
+        else:
+            link.first = fn(link.first)
+        link = link.rest
+
+
+link1 = Link(3, Link(Link(4), Link(5, Link(6))))
+deep_map_mut(lambda x: x * x, link1)
+print(link1)
 
 # Q8
 def has_cycle(link):
@@ -50,6 +76,14 @@ def has_cycle(link):
     False
     """
     "*** YOUR CODE HERE ***"
+    links = []
+    while link:
+        if link in links:
+            return True
+        else:
+            links.append(link)
+        link = link.rest
+    return False
 
 def has_cycle_constant(link):
     """Return whether link contains a cycle.
@@ -63,6 +97,12 @@ def has_cycle_constant(link):
     False
     """
     "*** YOUR CODE HERE ***"
+    slow, fast = link, link.rest
+    while fast != Link.empty:
+        if slow is fast or slow is fast.rest:
+            return True
+        slow, fast = slow.rest, fast.rest.rest
+    return False
 
 # Q9
 def reverse_other(t):
@@ -79,3 +119,9 @@ def reverse_other(t):
     Tree(1, [Tree(8, [Tree(3, [Tree(5), Tree(4)]), Tree(6, [Tree(7)])]), Tree(2)])
     """
     "*** YOUR CODE HERE ***"
+    rev_branch_labels = [b.label for b in t.branches][::-1]
+    for i, b in enumerate(t.branches):
+        b.label = rev_branch_labels[i]
+        if not b.is_leaf():
+            for b_of_b in b.branches:
+                reverse_other(b_of_b)

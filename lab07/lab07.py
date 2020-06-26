@@ -11,6 +11,7 @@ def link_to_list(link):
     []
     """
     "*** YOUR CODE HERE ***"
+    return [] if link == Link.empty else [link.first] + link_to_list(link.rest)
 
 # Q4
 def store_digits(n):
@@ -25,6 +26,12 @@ def store_digits(n):
     Link(8, Link(7, Link(6)))
     """
     "*** YOUR CODE HERE ***"
+    l = Link.empty
+    while n > 0:
+        l = Link(n % 10, l)
+        n //= 10
+    return l
+        
 
 # Q5
 def cumulative_sum(t):
@@ -37,11 +44,14 @@ def cumulative_sum(t):
     Tree(16, [Tree(8, [Tree(5)]), Tree(7)])
     """
     "*** YOUR CODE HERE ***"
+    for b in t.branches:
+        cumulative_sum(b)
+    t.label += sum([b.label for b in t.branches])
 
 # Linked List Class
 class Link:
     """A linked list.
-
+    
     >>> s = Link(1)
     >>> s.first
     1
@@ -62,28 +72,28 @@ class Link:
     <5 7 <8 9>>
     """
     empty = ()
-
+    
     def __init__(self, first, rest=empty):
         assert rest is Link.empty or isinstance(rest, Link)
         self.first = first
         self.rest = rest
-
+        
     @property
     def second(self):
         return self.rest.first
-
+        
     @second.setter
     def second(self, value):
         self.rest.first = value
-
-
+        
+        
     def __repr__(self):
         if self.rest is not Link.empty:
             rest_repr = ', ' + repr(self.rest)
         else:
             rest_repr = ''
         return 'Link(' + repr(self.first) + rest_repr + ')'
-
+        
     def __str__(self):
         string = '<'
         while self.rest is not Link.empty:
@@ -98,21 +108,21 @@ class Tree:
             assert isinstance(c, Tree)
         self.label = label
         self.branches = list(branches)
-
+        
     def __repr__(self):
         if self.branches:
             branches_str = ', ' + repr(self.branches)
         else:
             branches_str = ''
         return 'Tree({0}{1})'.format(self.label, branches_str)
-
+        
     def is_leaf(self):
         return not self.branches
-
+        
     def __eq__(self, other):
         return type(other) is type(self) and self.label == other.label \
                and self.branches == other.branches
-    
+        
     def __str__(self):
         def print_tree(t, indent=0):
             tree_str = '  ' * indent + str(t.label) + "\n"
@@ -120,6 +130,6 @@ class Tree:
                 tree_str += print_tree(b, indent + 1)
             return tree_str
         return print_tree(self).rstrip()
-
+        
     def copy_tree(self):
         return Tree(self.label, [b.copy_tree() for b in self.branches])
